@@ -320,17 +320,45 @@ button {
     padding: 15px;
     border-radius: 5px;
     border: 1px solid #e5e7eb;
+    overflow-x: auto;
 }
 
-.tracking-grid {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
+.tracking-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
 }
 
-.tracking-column {
-    flex: 1;
-    min-width: 200px;
+.tracking-table th {
+    background-color: #f1f5f9;
+    padding: 10px;
+    text-align: center;
+    border-bottom: 2px solid #e5e7eb;
+    font-weight: 600;
+}
+
+.tracking-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.position-cell {
+    text-align: left;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.value-cell {
+    font-weight: bold;
+    color: #1e40af;
+    background-color: #f0f7ff;
+}
+
+.bet-cell {
+    font-weight: bold;
+    color: #0c4a6e;
+    background-color: #e0f2fe;
 }
 
 /* Signals Row Styles */

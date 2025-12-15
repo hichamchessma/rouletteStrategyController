@@ -295,24 +295,38 @@ document.addEventListener('DOMContentLoaded', () => {
             prevError.remove();
         }
         
-        // Always update the tracking display even if we don't have enough numbers
-        const absences = detectAbsence(currentHistory);
-        
-        // Update tracking for columns
-        column1AbsenceElement.textContent = absences.columns[1];
-        column2AbsenceElement.textContent = absences.columns[2];
-        column3AbsenceElement.textContent = absences.columns[3];
-        
-        // Update tracking for tiers
-        tier1AbsenceElement.textContent = absences.tiers[1];
-        tier2AbsenceElement.textContent = absences.tiers[2];
-        tier3AbsenceElement.textContent = absences.tiers[3];
-        
         if (currentHistory.length < 5) {
             const errorMsg = document.createElement('div');
             errorMsg.className = 'error-message';
             errorMsg.textContent = 'Veuillez entrer au moins 5 numéros';
             document.querySelector('.new-number-section').after(errorMsg);
+            
+            // Réinitialiser les valeurs
+            document.getElementById('column-1-absence').textContent = '0';
+            document.getElementById('column-2-absence').textContent = '0';
+            document.getElementById('column-3-absence').textContent = '0';
+            document.getElementById('tier-1-absence').textContent = '0';
+            document.getElementById('tier-2-absence').textContent = '0';
+            document.getElementById('tier-3-absence').textContent = '0';
+            
+            document.getElementById('column-1-no-rep').textContent = '0';
+            document.getElementById('column-2-no-rep').textContent = '0';
+            document.getElementById('column-3-no-rep').textContent = '0';
+            document.getElementById('tier-1-no-rep').textContent = '0';
+            document.getElementById('tier-2-no-rep').textContent = '0';
+            document.getElementById('tier-3-no-rep').textContent = '0';
+            
+            document.getElementById('column-1-bet').textContent = '-';
+            document.getElementById('column-2-bet').textContent = '-';
+            document.getElementById('column-3-bet').textContent = '-';
+            document.getElementById('tier-1-bet').textContent = '-';
+            document.getElementById('tier-2-bet').textContent = '-';
+            document.getElementById('tier-3-bet').textContent = '-';
+            
+            document.getElementById('column-signal').textContent = 'Pas encore';
+            document.getElementById('tier-signal').textContent = 'Pas encore';
+            document.getElementById('no-repetition-column-signal').textContent = 'Pas encore';
+            document.getElementById('no-repetition-tier-signal').textContent = 'Pas encore';
             return;
         }
         
@@ -325,52 +339,55 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Display the results
         try {
-            // Display column absence results
+            // Mettre à jour les absences et no-repetition dans le tableau
+            document.getElementById('column-1-absence').textContent = result.noRepCounts ? result.noRepCounts.columns[1] : '0';
+            document.getElementById('column-2-absence').textContent = result.noRepCounts ? result.noRepCounts.columns[2] : '0';
+            document.getElementById('column-3-absence').textContent = result.noRepCounts ? result.noRepCounts.columns[3] : '0';
+            
+            document.getElementById('tier-1-absence').textContent = result.noRepCounts ? result.noRepCounts.tiers[1] : '0';
+            document.getElementById('tier-2-absence').textContent = result.noRepCounts ? result.noRepCounts.tiers[2] : '0';
+            document.getElementById('tier-3-absence').textContent = result.noRepCounts ? result.noRepCounts.tiers[3] : '0';
+            
+            // Mettre à jour les paris dans le tableau
+            if (result.columnBets) {
+                document.getElementById('column-1-bet').textContent = result.columnBets[1] || '-';
+                document.getElementById('column-2-bet').textContent = result.columnBets[2] || '-';
+                document.getElementById('column-3-bet').textContent = result.columnBets[3] || '-';
+            }
+            
+            if (result.tierBets) {
+                document.getElementById('tier-1-bet').textContent = result.tierBets[1] || '-';
+                document.getElementById('tier-2-bet').textContent = result.tierBets[2] || '-';
+                document.getElementById('tier-3-bet').textContent = result.tierBets[3] || '-';
+            }
+            
+            // Mettre à jour les signaux actifs
             const columnResult = result.column;
             if (!columnResult || columnResult.signalType === 'AUCUN') {
-                columnSignalElement.textContent = 'Pas encore';
-                columnAbsenceElement.textContent = '-';
-                columnBetElement.textContent = '-';
+                document.getElementById('column-signal').textContent = 'Pas encore';
             } else {
-                columnSignalElement.textContent = `COLUMN ${columnResult.target}`;
-                columnAbsenceElement.textContent = `${columnResult.absence} spins`;
-                columnBetElement.textContent = `${columnResult.nextBet} sur COLUMN ${columnResult.target}`;
+                document.getElementById('column-signal').textContent = `COLUMN ${columnResult.target}`;
             }
             
-            // Display tier absence results
             const tierResult = result.tier;
             if (!tierResult || tierResult.signalType === 'AUCUN') {
-                tierSignalElement.textContent = 'Pas encore';
-                tierAbsenceElement.textContent = '-';
-                tierBetElement.textContent = '-';
+                document.getElementById('tier-signal').textContent = 'Pas encore';
             } else {
-                tierSignalElement.textContent = `TIER ${tierResult.target}`;
-                tierAbsenceElement.textContent = `${tierResult.absence} spins`;
-                tierBetElement.textContent = `${tierResult.nextBet} sur TIER ${tierResult.target}`;
+                document.getElementById('tier-signal').textContent = `TIER ${tierResult.target}`;
             }
             
-            // Display no repetition column results
             const noRepetitionColumnResult = result.noRepetitionColumn;
             if (!noRepetitionColumnResult || noRepetitionColumnResult.signalType === 'AUCUN') {
-                noRepetitionColumnSignalElement.textContent = 'Pas encore';
-                noRepetitionColumnDescriptionElement.textContent = '-';
-                noRepetitionColumnBetElement.textContent = '-';
+                document.getElementById('no-repetition-column-signal').textContent = 'Pas encore';
             } else {
-                noRepetitionColumnSignalElement.textContent = `COLUMN ${noRepetitionColumnResult.target}`;
-                noRepetitionColumnDescriptionElement.textContent = noRepetitionColumnResult.description || 'Colonnes changeantes sans répétition';
-                noRepetitionColumnBetElement.textContent = `${noRepetitionColumnResult.nextBet} sur COLUMN ${noRepetitionColumnResult.target}`;
+                document.getElementById('no-repetition-column-signal').textContent = `COLUMN ${noRepetitionColumnResult.target}`;
             }
             
-            // Display no repetition tier results
             const noRepetitionTierResult = result.noRepetitionTier;
             if (!noRepetitionTierResult || noRepetitionTierResult.signalType === 'AUCUN') {
-                noRepetitionTierSignalElement.textContent = 'Pas encore';
-                noRepetitionTierDescriptionElement.textContent = '-';
-                noRepetitionTierBetElement.textContent = '-';
+                document.getElementById('no-repetition-tier-signal').textContent = 'Pas encore';
             } else {
-                noRepetitionTierSignalElement.textContent = `TIER ${noRepetitionTierResult.target}`;
-                noRepetitionTierDescriptionElement.textContent = noRepetitionTierResult.description || 'Tiers changeants sans répétition';
-                noRepetitionTierBetElement.textContent = `${noRepetitionTierResult.nextBet} sur TIER ${noRepetitionTierResult.target}`;
+                document.getElementById('no-repetition-tier-signal').textContent = `TIER ${noRepetitionTierResult.target}`;
             }
         } catch (error) {
             console.error('Error displaying results:', error);

@@ -142,10 +142,9 @@ function detectAbsence(numbers) {
 }
 
 /**
- * Detects if there is a pattern of no repetition (continuous changes) in columns or tiers
+ * Detects absence patterns for columns and tiers in the number history
  * @param {Array<number>} numbers - Array of roulette numbers (most recent first)
- * @param {number} minLength - Minimum number of consecutive changes required (default: 5)
- * @returns {Object} Object containing no repetition signals for columns and tiers
+ * @returns {Object} Object containing consecutive absence counts for each column and tier
  */
 function detectNoRepetition(numbers, minLength = 5) {
     // Need at least minLength+1 numbers to check for minLength changes
@@ -376,7 +375,11 @@ function analyzeRouletteHistory(numbers, maxBet = 8) {
             column: { signalType: "AUCUN", target: "-", absence: 0, betSeries: [], nextBet: 0 },
             tier: { signalType: "AUCUN", target: "-", absence: 0, betSeries: [], nextBet: 0 },
             noRepetitionColumn: { signalType: "AUCUN", target: "-", betSeries: [], nextBet: 0 },
-            noRepetitionTier: { signalType: "AUCUN", target: "-", betSeries: [], nextBet: 0 }
+            noRepetitionTier: { signalType: "AUCUN", target: "-", betSeries: [], nextBet: 0 },
+            noRepCounts: {
+                columns: { 1: 0, 2: 0, 3: 0 },
+                tiers: { 1: 0, 2: 0, 3: 0 }
+            }
         };
     }
     
@@ -390,6 +393,10 @@ function analyzeRouletteHistory(numbers, maxBet = 8) {
     // Detect no repetition patterns
     const noRepetition = detectNoRepetition(numbersCopy);
     console.log('No repetition patterns:', noRepetition);
+    
+    // Calculate no-repetition counts for each column and tier
+    const noRepCounts = calculateNoRepetitionCounts(numbersCopy);
+    console.log('No repetition counts:', noRepCounts);
     
     // Find best column signal (absence)
     let bestColumnSignal = null;
@@ -482,10 +489,39 @@ function analyzeRouletteHistory(numbers, maxBet = 8) {
         buildBetResult(noRepetitionTierSignal, maxBet, numbersCopy) : 
         { signalType: "AUCUN", target: "-", betSeries: [], nextBet: 0 };
     
+    // Préparer les paris pour chaque colonne et tier
+    const columnBets = {};
+    const tierBets = {};
+    
+    // Paris pour les colonnes
+    for (let c = 1; c <= 3; c++) {
+        if (c === parseInt(columnResult.target)) {
+            columnBets[c] = `${columnResult.nextBet} sur C${c}`;
+        } else if (parseInt(noRepetitionColumnResult.target) === c) {
+            columnBets[c] = `${noRepetitionColumnResult.nextBet} sur C${c}`;
+        } else {
+            columnBets[c] = "-";
+        }
+    }
+    
+    // Paris pour les tiers
+    for (let t = 1; t <= 3; t++) {
+        if (t === parseInt(tierResult.target)) {
+            tierBets[t] = `${tierResult.nextBet} sur T${t}`;
+        } else if (parseInt(noRepetitionTierResult.target) === t) {
+            tierBets[t] = `${noRepetitionTierResult.nextBet} sur T${t}`;
+        } else {
+            tierBets[t] = "-";
+        }
+    }
+    
     return {
         column: columnResult,
         tier: tierResult,
         noRepetitionColumn: noRepetitionColumnResult,
-        noRepetitionTier: noRepetitionTierResult
+        noRepetitionTier: noRepetitionTierResult,
+        noRepCounts: noRepCounts,
+        columnBets: columnBets,
+        tierBets: tierBets
     };
 }

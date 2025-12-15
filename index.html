@@ -72,122 +72,80 @@
         </div>
         
         <div class="results-container">
-            <!-- Tracking des absences (moitié droite) -->
-            <div class="main-section right-section">
-                <h3 class="section-title">Absences</h3>
+            <div class="main-section">
+                <h3 class="section-title">Tableau de suivi</h3>
                 <div class="tracking-dashboard">
-                    <div class="tracking-grid">
-                        <div class="tracking-column">
-                            <div class="tracking-item">
-                                <span class="tracking-label">C1 [1-34]:</span>
-                                <span id="column-1-absence" class="tracking-value">0</span>
-                            </div>
-                            <div class="tracking-item">
-                                <span class="tracking-label">C2 [2-35]:</span>
-                                <span id="column-2-absence" class="tracking-value">0</span>
-                            </div>
-                            <div class="tracking-item">
-                                <span class="tracking-label">C3 [3-36]:</span>
-                                <span id="column-3-absence" class="tracking-value">0</span>
-                            </div>
-                        </div>
-                        <div class="tracking-column">
-                            <div class="tracking-item">
-                                <span class="tracking-label">T1 [1-12]:</span>
-                                <span id="tier-1-absence" class="tracking-value">0</span>
-                            </div>
-                            <div class="tracking-item">
-                                <span class="tracking-label">T2 [13-24]:</span>
-                                <span id="tier-2-absence" class="tracking-value">0</span>
-                            </div>
-                            <div class="tracking-item">
-                                <span class="tracking-label">T3 [25-36]:</span>
-                                <span id="tier-3-absence" class="tracking-value">0</span>
-                            </div>
-                        </div>
-                    </div>
+                    <table class="tracking-table">
+                        <thead>
+                            <tr>
+                                <th>Position</th>
+                                <th>Absence</th>
+                                <th>No Repetition</th>
+                                <th>Prochain Bet</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="position-cell">C1 [1-34]</td>
+                                <td id="column-1-absence" class="value-cell">0</td>
+                                <td id="column-1-no-rep" class="value-cell">0</td>
+                                <td id="column-1-bet" class="bet-cell">-</td>
+                            </tr>
+                            <tr>
+                                <td class="position-cell">C2 [2-35]</td>
+                                <td id="column-2-absence" class="value-cell">0</td>
+                                <td id="column-2-no-rep" class="value-cell">0</td>
+                                <td id="column-2-bet" class="bet-cell">-</td>
+                            </tr>
+                            <tr>
+                                <td class="position-cell">C3 [3-36]</td>
+                                <td id="column-3-absence" class="value-cell">0</td>
+                                <td id="column-3-no-rep" class="value-cell">0</td>
+                                <td id="column-3-bet" class="bet-cell">-</td>
+                            </tr>
+                            <tr>
+                                <td class="position-cell">T1 [1-12]</td>
+                                <td id="tier-1-absence" class="value-cell">0</td>
+                                <td id="tier-1-no-rep" class="value-cell">0</td>
+                                <td id="tier-1-bet" class="bet-cell">-</td>
+                            </tr>
+                            <tr>
+                                <td class="position-cell">T2 [13-24]</td>
+                                <td id="tier-2-absence" class="value-cell">0</td>
+                                <td id="tier-2-no-rep" class="value-cell">0</td>
+                                <td id="tier-2-bet" class="bet-cell">-</td>
+                            </tr>
+                            <tr>
+                                <td class="position-cell">T3 [25-36]</td>
+                                <td id="tier-3-absence" class="value-cell">0</td>
+                                <td id="tier-3-no-rep" class="value-cell">0</td>
+                                <td id="tier-3-bet" class="bet-cell">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
                 
-                <div class="arrow-down">↓</div>
-                
-                <div class="signals-row">
-                    <!-- Signal d'absence pour les colonnes -->
+                <div class="signals-summary">
                     <div class="signal-card">
                         <div class="card-header">
-                            <h3>Absence Column</h3>
+                            <h3>Signaux actifs</h3>
                         </div>
                         <div class="card-body">
                             <div class="result-item">
+                                <span class="result-label">Absence Column:</span>
                                 <span id="column-signal" class="result-value">Pas encore</span>
                             </div>
                             <div class="result-item">
-                                <span id="column-absence" class="result-value">-</span>
-                            </div>
-                            <div class="result-item highlight">
-                                <span id="column-bet" class="result-value">-</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Signal d'absence pour les tiers -->
-                    <div class="signal-card">
-                        <div class="card-header">
-                            <h3>Absence Tier</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="result-item">
+                                <span class="result-label">Absence Tier:</span>
                                 <span id="tier-signal" class="result-value">Pas encore</span>
                             </div>
                             <div class="result-item">
-                                <span id="tier-absence" class="result-value">-</span>
-                            </div>
-                            <div class="result-item highlight">
-                                <span id="tier-bet" class="result-value">-</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- No Repetition (moitié gauche) -->
-            <div class="main-section left-section">
-                <h3 class="section-title">No Repetition</h3>
-                
-                <div class="arrow-down">↓</div>
-                
-                <div class="signals-row">
-                    <!-- Signal No Repetition pour les colonnes -->
-                    <div class="signal-card">
-                        <div class="card-header">
-                            <h3>No Repetition Column</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="result-item">
+                                <span class="result-label">No Rep Column:</span>
                                 <span id="no-repetition-column-signal" class="result-value">Pas encore</span>
                             </div>
                             <div class="result-item">
-                                <span id="no-repetition-column-description" class="result-value">-</span>
-                            </div>
-                            <div class="result-item highlight">
-                                <span id="no-repetition-column-bet" class="result-value">-</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Signal No Repetition pour les tiers -->
-                    <div class="signal-card">
-                        <div class="card-header">
-                            <h3>No Repetition Tier</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="result-item">
+                                <span class="result-label">No Rep Tier:</span>
                                 <span id="no-repetition-tier-signal" class="result-value">Pas encore</span>
-                            </div>
-                            <div class="result-item">
-                                <span id="no-repetition-tier-description" class="result-value">-</span>
-                            </div>
-                            <div class="result-item highlight">
-                                <span id="no-repetition-tier-bet" class="result-value">-</span>
                             </div>
                         </div>
                     </div>
