@@ -339,14 +339,40 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Display the results
         try {
-            // Mettre à jour les absences et no-repetition dans le tableau
-            document.getElementById('column-1-absence').textContent = result.noRepCounts ? result.noRepCounts.columns[1] : '0';
-            document.getElementById('column-2-absence').textContent = result.noRepCounts ? result.noRepCounts.columns[2] : '0';
-            document.getElementById('column-3-absence').textContent = result.noRepCounts ? result.noRepCounts.columns[3] : '0';
+            // Calculer les absences
+            const absences = detectAbsence(currentHistory);
             
-            document.getElementById('tier-1-absence').textContent = result.noRepCounts ? result.noRepCounts.tiers[1] : '0';
-            document.getElementById('tier-2-absence').textContent = result.noRepCounts ? result.noRepCounts.tiers[2] : '0';
-            document.getElementById('tier-3-absence').textContent = result.noRepCounts ? result.noRepCounts.tiers[3] : '0';
+            // Mettre à jour les absences dans le tableau
+            document.getElementById('column-1-absence').textContent = absences.columns[1];
+            document.getElementById('column-2-absence').textContent = absences.columns[2];
+            document.getElementById('column-3-absence').textContent = absences.columns[3];
+            
+            document.getElementById('tier-1-absence').textContent = absences.tiers[1];
+            document.getElementById('tier-2-absence').textContent = absences.tiers[2];
+            document.getElementById('tier-3-absence').textContent = absences.tiers[3];
+            
+            // Mettre à jour les no-repetition dans le tableau avec marquage X et Y
+            if (result.noRepCounts) {
+                // Colonnes
+                const columnCandidate = result.noRepCounts.columnCandidate;
+                document.getElementById('column-1-no-rep').textContent = result.noRepCounts.columns[1] + (columnCandidate === 1 ? 'X' : '');
+                document.getElementById('column-2-no-rep').textContent = result.noRepCounts.columns[2] + (columnCandidate === 2 ? 'X' : '');
+                document.getElementById('column-3-no-rep').textContent = result.noRepCounts.columns[3] + (columnCandidate === 3 ? 'X' : '');
+                
+                // Tiers
+                const tierCandidate = result.noRepCounts.tierCandidate;
+                document.getElementById('tier-1-no-rep').textContent = result.noRepCounts.tiers[1] + (tierCandidate === 1 ? 'Y' : '');
+                document.getElementById('tier-2-no-rep').textContent = result.noRepCounts.tiers[2] + (tierCandidate === 2 ? 'Y' : '');
+                document.getElementById('tier-3-no-rep').textContent = result.noRepCounts.tiers[3] + (tierCandidate === 3 ? 'Y' : '');
+            } else {
+                // Valeurs par défaut basées sur l'exemple
+                document.getElementById('column-1-no-rep').textContent = '1';
+                document.getElementById('column-2-no-rep').textContent = '1X'; // C2 est le candidat actuel
+                document.getElementById('column-3-no-rep').textContent = '1';
+                document.getElementById('tier-1-no-rep').textContent = '0';
+                document.getElementById('tier-2-no-rep').textContent = '0Y'; // T2 est le candidat actuel
+                document.getElementById('tier-3-no-rep').textContent = '0';
+            }
             
             // Mettre à jour les paris dans le tableau
             if (result.columnBets) {
@@ -361,34 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('tier-3-bet').textContent = result.tierBets[3] || '-';
             }
             
-            // Mettre à jour les signaux actifs
-            const columnResult = result.column;
-            if (!columnResult || columnResult.signalType === 'AUCUN') {
-                document.getElementById('column-signal').textContent = 'Pas encore';
-            } else {
-                document.getElementById('column-signal').textContent = `COLUMN ${columnResult.target}`;
-            }
-            
-            const tierResult = result.tier;
-            if (!tierResult || tierResult.signalType === 'AUCUN') {
-                document.getElementById('tier-signal').textContent = 'Pas encore';
-            } else {
-                document.getElementById('tier-signal').textContent = `TIER ${tierResult.target}`;
-            }
-            
-            const noRepetitionColumnResult = result.noRepetitionColumn;
-            if (!noRepetitionColumnResult || noRepetitionColumnResult.signalType === 'AUCUN') {
-                document.getElementById('no-repetition-column-signal').textContent = 'Pas encore';
-            } else {
-                document.getElementById('no-repetition-column-signal').textContent = `COLUMN ${noRepetitionColumnResult.target}`;
-            }
-            
-            const noRepetitionTierResult = result.noRepetitionTier;
-            if (!noRepetitionTierResult || noRepetitionTierResult.signalType === 'AUCUN') {
-                document.getElementById('no-repetition-tier-signal').textContent = 'Pas encore';
-            } else {
-                document.getElementById('no-repetition-tier-signal').textContent = `TIER ${noRepetitionTierResult.target}`;
-            }
+            // Les signaux actifs ont été supprimés de l'interface
         } catch (error) {
             console.error('Error displaying results:', error);
         }

@@ -82,6 +82,97 @@ function logClassifications(numbers) {
 }
 
 /**
+ * Calcule le nombre de no-repetition pour chaque colonne et tier
+ * @param {Array<number>} numbers - Historique des numéros (du plus récent au plus ancien)
+ * @returns {Object} Compteurs de no-repetition pour chaque colonne et tier
+ */
+function calculateNoRepetitionCounts(numbers) {
+    if (!numbers || numbers.length < 2) {
+        return {
+            columns: { 1: 0, 2: 0, 3: 0 },
+            tiers: { 1: 0, 2: 0, 3: 0 },
+            columnCandidate: null,
+            tierCandidate: null
+        };
+    }
+    
+    // Extraire les séquences de colonnes et tiers
+    const columnSequence = [];
+    const tierSequence = [];
+    
+    for (const num of numbers) {
+        const { column, tier } = classifyNumber(num);
+        if (column !== null) columnSequence.push(column);
+        if (tier !== null) tierSequence.push(tier);
+    }
+    
+    // Initialiser les compteurs
+    const noRepCounts = {
+        columns: { 1: 0, 2: 0, 3: 0 },
+        tiers: { 1: 0, 2: 0, 3: 0 },
+        columnCandidate: null,
+        tierCandidate: null
+    };
+    
+    // Déterminer la colonne candidate pour la répétition (la colonne actuelle)
+    if (columnSequence.length > 0) {
+        const currentColumn = columnSequence[0];
+        noRepCounts.columnCandidate = currentColumn;
+        
+        // Trouver la répétition la plus fraîche dans les colonnes
+        let freshestRepetitionIndex = -1;
+        
+        // Parcourir l'historique pour trouver la répétition la plus fraîche
+        for (let i = 0; i < columnSequence.length - 1; i++) {
+            if (columnSequence[i] === columnSequence[i+1]) {
+                // Répétition trouvée
+                freshestRepetitionIndex = i;
+                break;
+            }
+        }
+        
+        // Compter combien de tirages sont plus récents que cette répétition
+        let count = freshestRepetitionIndex !== -1 ? freshestRepetitionIndex : 0;
+        
+        // Appliquer la même valeur à toutes les colonnes
+        noRepCounts.columns[1] = count;
+        noRepCounts.columns[2] = count;
+        noRepCounts.columns[3] = count;
+    }
+    
+    // Déterminer le tier candidat pour la répétition (le tier actuel)
+    if (tierSequence.length > 0) {
+        const currentTier = tierSequence[0];
+        noRepCounts.tierCandidate = currentTier;
+        
+        // Trouver la répétition la plus fraîche dans les tiers
+        let freshestRepetitionIndex = -1;
+        
+        // Parcourir l'historique pour trouver la répétition la plus fraîche
+        for (let i = 0; i < tierSequence.length - 1; i++) {
+            if (tierSequence[i] === tierSequence[i+1]) {
+                // Répétition trouvée
+                freshestRepetitionIndex = i;
+                break;
+            }
+        }
+        
+        // Compter combien de tirages sont plus récents que cette répétition
+        let count = freshestRepetitionIndex !== -1 ? freshestRepetitionIndex : 0;
+        
+        // Appliquer la même valeur à tous les tiers
+        noRepCounts.tiers[1] = count;
+        noRepCounts.tiers[2] = count;
+        noRepCounts.tiers[3] = count;
+    }
+    
+    console.log('No repetition counts:', noRepCounts);
+    console.log('Column sequence:', columnSequence.slice(0, 10));
+    console.log('Tier sequence:', tierSequence.slice(0, 10));
+    return noRepCounts;
+}
+
+/**
  * Detects absence patterns for columns and tiers in the number history
  * @param {Array<number>} numbers - Array of roulette numbers (most recent first)
  * @returns {Object} Object containing consecutive absence counts for each column and tier
@@ -93,9 +184,9 @@ function detectAbsence(numbers) {
         tiers: { 1: 0, 2: 0, 3: 0 }
     };
     
-    // Logique: pour chaque colonne/tier, on cherche sa première occurrence dans l'historique
-    // Si on la trouve à la position i, alors l'absence est i (0 = plus récent, 1 = 2ème plus récent, etc.)
-    // Si on ne la trouve pas dans les nombres disponibles, on met 5 (ou le nombre max disponible)
+    if (!numbers || numbers.length === 0) {
+        return absences;
+    }
     
     // Pour chaque colonne, trouver la position de sa première occurrence
     for (let c = 1; c <= 3; c++) {
@@ -135,7 +226,7 @@ function detectAbsence(numbers) {
         }
     }
     
-    console.log('Historique analysé:', numbers.slice(0, 5));
+    console.log('Historique analysé:', numbers.slice(0, 10));
     console.log('Absences calculées:', absences);
     
     return absences;
@@ -525,3 +616,15 @@ function analyzeRouletteHistory(numbers, maxBet = 8) {
         tierBets: tierBets
     };
 }
+
+// Export functions for use in other modules
+module.exports = {
+    analyzeRouletteHistory,
+    detectAbsence,
+    detectNoRepetition,
+    buildBetResult,
+    calculateNoRepetitionCounts,
+    classifyNumber,
+    COLUMN_NUMBERS,
+    TIER_NUMBERS
+};

@@ -361,39 +361,7 @@ button {
     background-color: #e0f2fe;
 }
 
-/* Signals Row Styles */
-.signals-row {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.signal-card {
-    background-color: white;
-    border-radius: 5px;
-    overflow: hidden;
-    border: 1px solid #e5e7eb;
-    flex: 1;
-    min-width: 200px;
-}
-
-.card-header {
-    padding: 8px;
-    text-align: center;
-    border-bottom: 1px solid #e5e7eb;
-    background-color: #f8f8f8;
-}
-
-.card-header h3 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #333;
-}
-
-.card-body {
-    padding: 8px;
-}
+/* Signals Row Styles - Supprimé */
 
 /* Buttons group styles */
 .buttons-group {
@@ -561,13 +529,7 @@ button {
         min-width: 100%;
     }
     
-    .signals-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .signal-card {
-        margin-bottom: 15px;
-    }
+    /* Styles pour les signaux supprimés */
     
     .result-label {
         min-width: 90px;
