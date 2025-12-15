@@ -13,15 +13,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const randomHistoryBtn = document.getElementById('random-history-btn');
     const generatedNumbersContainer = document.getElementById('generated-numbers');
     
-    // Column result elements
+    // Column result elements (absence signal)
     const columnSignalElement = document.getElementById('column-signal');
     const columnAbsenceElement = document.getElementById('column-absence');
     const columnBetElement = document.getElementById('column-bet');
     
-    // Tier result elements
+    // Tier result elements (absence signal)
     const tierSignalElement = document.getElementById('tier-signal');
     const tierAbsenceElement = document.getElementById('tier-absence');
     const tierBetElement = document.getElementById('tier-bet');
+    
+    // No Repetition Column result elements
+    const noRepetitionColumnSignalElement = document.getElementById('no-repetition-column-signal');
+    const noRepetitionColumnDescriptionElement = document.getElementById('no-repetition-column-description');
+    const noRepetitionColumnBetElement = document.getElementById('no-repetition-column-bet');
+    
+    // No Repetition Tier result elements
+    const noRepetitionTierSignalElement = document.getElementById('no-repetition-tier-signal');
+    const noRepetitionTierDescriptionElement = document.getElementById('no-repetition-tier-description');
+    const noRepetitionTierBetElement = document.getElementById('no-repetition-tier-bet');
     
     // Tracking elements for columns
     const column1AbsenceElement = document.getElementById('column-1-absence');
@@ -77,27 +87,50 @@ document.addEventListener('DOMContentLoaded', () => {
     // Display functions are now handled directly in calculateNextBet
     
     /**
-     * Displays the generated numbers in the dedicated area
-     * @param {Array} numbers - Array of numbers to display
+     * Displays the generated numbers in the UI
+     * @param {Array<number>} numbers - Array of numbers to display
      */
     function displayGeneratedNumbers(numbers) {
-        // Clear previous numbers
+        // Clear the container
         generatedNumbersContainer.innerHTML = '';
         
-        // Create and append number elements
+        // Create rows of 10 numbers
+        const rows = [];
+        let currentRow = [];
+        
         numbers.forEach((num, index) => {
-            const numElement = document.createElement('div');
-            numElement.className = 'generated-number';
-            numElement.textContent = num;
+            currentRow.push({
+                num: num,
+                position: index
+            });
             
-            // Add a data attribute for the position (most recent = 0)
-            numElement.dataset.position = index;
-            
-            generatedNumbersContainer.appendChild(numElement);
+            // Start a new row after 10 numbers
+            if (currentRow.length === 10) {
+                rows.push([...currentRow]);
+                currentRow = [];
+            }
         });
         
-        // Scroll to the beginning (most recent numbers) if there are many numbers
-        generatedNumbersContainer.scrollLeft = 0;
+        // Add any remaining numbers to the last row
+        if (currentRow.length > 0) {
+            rows.push(currentRow);
+        }
+        
+        // Create DOM elements for each row
+        rows.forEach(row => {
+            const rowElement = document.createElement('div');
+            rowElement.className = 'number-row';
+            
+            row.forEach(item => {
+                const numElement = document.createElement('span');
+                numElement.className = 'generated-number';
+                numElement.textContent = item.num;
+                numElement.setAttribute('data-position', item.position);
+                rowElement.appendChild(numElement);
+            });
+            
+            generatedNumbersContainer.appendChild(rowElement);
+        });
     }
     
     /**
@@ -292,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Display the results
         try {
-            // Display column results
+            // Display column absence results
             const columnResult = result.column;
             if (!columnResult || columnResult.signalType === 'AUCUN') {
                 columnSignalElement.textContent = 'Pas encore';
@@ -304,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 columnBetElement.textContent = `${columnResult.nextBet} sur COLUMN ${columnResult.target}`;
             }
             
-            // Display tier results
+            // Display tier absence results
             const tierResult = result.tier;
             if (!tierResult || tierResult.signalType === 'AUCUN') {
                 tierSignalElement.textContent = 'Pas encore';
@@ -315,6 +348,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 tierAbsenceElement.textContent = `${tierResult.absence} spins`;
                 tierBetElement.textContent = `${tierResult.nextBet} sur TIER ${tierResult.target}`;
             }
+            
+            // Display no repetition column results
+            const noRepetitionColumnResult = result.noRepetitionColumn;
+            if (!noRepetitionColumnResult || noRepetitionColumnResult.signalType === 'AUCUN') {
+                noRepetitionColumnSignalElement.textContent = 'Pas encore';
+                noRepetitionColumnDescriptionElement.textContent = '-';
+                noRepetitionColumnBetElement.textContent = '-';
+            } else {
+                noRepetitionColumnSignalElement.textContent = `COLUMN ${noRepetitionColumnResult.target}`;
+                noRepetitionColumnDescriptionElement.textContent = noRepetitionColumnResult.description || 'Colonnes changeantes sans répétition';
+                noRepetitionColumnBetElement.textContent = `${noRepetitionColumnResult.nextBet} sur COLUMN ${noRepetitionColumnResult.target}`;
+            }
+            
+            // Display no repetition tier results
+            const noRepetitionTierResult = result.noRepetitionTier;
+            if (!noRepetitionTierResult || noRepetitionTierResult.signalType === 'AUCUN') {
+                noRepetitionTierSignalElement.textContent = 'Pas encore';
+                noRepetitionTierDescriptionElement.textContent = '-';
+                noRepetitionTierBetElement.textContent = '-';
+            } else {
+                noRepetitionTierSignalElement.textContent = `TIER ${noRepetitionTierResult.target}`;
+                noRepetitionTierDescriptionElement.textContent = noRepetitionTierResult.description || 'Tiers changeants sans répétition';
+                noRepetitionTierBetElement.textContent = `${noRepetitionTierResult.nextBet} sur TIER ${noRepetitionTierResult.target}`;
+            }
         } catch (error) {
             console.error('Error displaying results:', error);
         }
@@ -322,6 +379,33 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Event Listeners
     calculateBtn.addEventListener('click', calculateNextBet);
+    
+    // Add random number button
+    document.getElementById('add-random-number-btn').addEventListener('click', () => {
+        // Generate a random number between 0 and 36
+        const randomNum = Math.floor(Math.random() * 37);
+        
+        // Add it to the history
+        currentHistory.unshift(randomNum);
+        
+        // Display the updated history
+        displayGeneratedNumbers(currentHistory);
+        
+        // Calculate bets based on the updated history
+        calculateNextBet();
+    });
+    
+    // Clear history button
+    document.getElementById('clear-history-btn').addEventListener('click', () => {
+        // Clear the history
+        currentHistory = [];
+        
+        // Clear the display
+        displayGeneratedNumbers(currentHistory);
+        
+        // Reset all values
+        clearAll();
+    });
     
     // Add new number button
     addNumberBtn.addEventListener('click', () => {

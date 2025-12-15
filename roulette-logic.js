@@ -142,6 +142,92 @@ function detectAbsence(numbers) {
 }
 
 /**
+ * Detects if there is a pattern of no repetition (continuous changes) in columns or tiers
+ * @param {Array<number>} numbers - Array of roulette numbers (most recent first)
+ * @param {number} minLength - Minimum number of consecutive changes required (default: 5)
+ * @returns {Object} Object containing no repetition signals for columns and tiers
+ */
+function detectNoRepetition(numbers, minLength = 5) {
+    // Need at least minLength+1 numbers to check for minLength changes
+    if (numbers.length < minLength + 1) {
+        return { columns: false, tiers: false };
+    }
+    
+    // Get classifications for the numbers
+    const classifications = [];
+    for (let i = 0; i < numbers.length; i++) {
+        classifications.push(classifyNumber(numbers[i]));
+    }
+    
+    // Check for column changes
+    let columnChanges = true;
+    let previousColumn = classifications[0].column;
+    
+    for (let i = 1; i < minLength; i++) {
+        const currentColumn = classifications[i].column;
+        
+        // Skip zeros (they don't count as repetition or change)
+        if (currentColumn === null || previousColumn === null) {
+            columnChanges = false;
+            break;
+        }
+        
+        // If same column as previous, no continuous change
+        if (currentColumn === previousColumn) {
+            columnChanges = false;
+            break;
+        }
+        
+        previousColumn = currentColumn;
+    }
+    
+    // Check if the minLength change is different from the one before
+    // (to ensure it's not just stabilized at a pattern)
+    if (columnChanges && numbers.length > minLength) {
+        const olderColumn = classifyNumber(numbers[minLength]).column;
+        if (olderColumn === classifications[minLength-1].column) {
+            columnChanges = false; // Pattern has stabilized
+        }
+    }
+    
+    // Check for tier changes
+    let tierChanges = true;
+    let previousTier = classifications[0].tier;
+    
+    for (let i = 1; i < minLength; i++) {
+        const currentTier = classifications[i].tier;
+        
+        // Skip zeros
+        if (currentTier === null || previousTier === null) {
+            tierChanges = false;
+            break;
+        }
+        
+        // If same tier as previous, no continuous change
+        if (currentTier === previousTier) {
+            tierChanges = false;
+            break;
+        }
+        
+        previousTier = currentTier;
+    }
+    
+    // Check if the minLength change is different from the one before
+    if (tierChanges && numbers.length > minLength) {
+        const olderTier = classifyNumber(numbers[minLength]).tier;
+        if (olderTier === classifications[minLength-1].tier) {
+            tierChanges = false; // Pattern has stabilized
+        }
+    }
+    
+    // Return results
+    return {
+        columns: columnChanges,
+        tiers: tierChanges
+    };
+}
+
+/**
  * Detects betting signals based on absence patterns
  * @param {Object} absences - Object containing absence counts
  * @param {number} minAbsence - Minimum absence to trigger a signal (default: 5)
@@ -288,7 +374,9 @@ function analyzeRouletteHistory(numbers, maxBet = 8) {
     if (!validateNumbers(numbers) || numbers.length < 5) {
         return { 
             column: { signalType: "AUCUN", target: "-", absence: 0, betSeries: [], nextBet: 0 },
-            tier: { signalType: "AUCUN", target: "-", absence: 0, betSeries: [], nextBet: 0 }
+            tier: { signalType: "AUCUN", target: "-", absence: 0, betSeries: [], nextBet: 0 },
+            noRepetitionColumn: { signalType: "AUCUN", target: "-", betSeries: [], nextBet: 0 },
+            noRepetitionTier: { signalType: "AUCUN", target: "-", betSeries: [], nextBet: 0 }
         };
     }
     
@@ -297,10 +385,13 @@ function analyzeRouletteHistory(numbers, maxBet = 8) {
     
     // Detect absences
     const absences = detectAbsence(numbersCopy);
-    
     console.log('Absences detected:', absences);
     
-    // Find best column signal
+    // Detect no repetition patterns
+    const noRepetition = detectNoRepetition(numbersCopy);
+    console.log('No repetition patterns:', noRepetition);
+    
+    // Find best column signal (absence)
     let bestColumnSignal = null;
     let maxColumnAbsence = 4; // Must be at least 5 to be a signal
     
@@ -316,7 +407,7 @@ function analyzeRouletteHistory(numbers, maxBet = 8) {
         }
     }
     
-    // Find best tier signal
+    // Find best tier signal (absence)
     let bestTierSignal = null;
     let maxTierAbsence = 4; // Must be at least 5 to be a signal
     
@@ -332,10 +423,48 @@ function analyzeRouletteHistory(numbers, maxBet = 8) {
         }
     }
     
-    console.log('Best Column Signal:', bestColumnSignal);
-    console.log('Best Tier Signal:', bestTierSignal);
+    // Create no repetition signals if detected
+    let noRepetitionColumnSignal = null;
+    let noRepetitionTierSignal = null;
     
-    // Build results
+    // If we have a no repetition pattern for columns, create a signal
+    if (noRepetition.columns) {
+        // Determine the most likely next column based on recent patterns
+        // For no repetition, we predict it will repeat the most recent column
+        const mostRecentNumber = numbersCopy[0];
+        const { column } = classifyNumber(mostRecentNumber);
+        
+        if (column !== null) {
+            noRepetitionColumnSignal = {
+                type: 'NO_REPETITION_COLUMN',
+                target: column,
+                description: 'Colonnes changeantes sans répétition'
+            };
+        }
+    }
+    
+    // If we have a no repetition pattern for tiers, create a signal
+    if (noRepetition.tiers) {
+        // Determine the most likely next tier based on recent patterns
+        // For no repetition, we predict it will repeat the most recent tier
+        const mostRecentNumber = numbersCopy[0];
+        const { tier } = classifyNumber(mostRecentNumber);
+        
+        if (tier !== null) {
+            noRepetitionTierSignal = {
+                type: 'NO_REPETITION_TIER',
+                target: tier,
+                description: 'Tiers changeants sans répétition'
+            };
+        }
+    }
+    
+    console.log('Best Column Signal (Absence):', bestColumnSignal);
+    console.log('Best Tier Signal (Absence):', bestTierSignal);
+    console.log('No Repetition Column Signal:', noRepetitionColumnSignal);
+    console.log('No Repetition Tier Signal:', noRepetitionTierSignal);
+    
+    // Build results for absence signals
     const columnResult = bestColumnSignal ? 
         buildBetResult(bestColumnSignal, maxBet, numbersCopy) : 
         { signalType: "AUCUN", target: "-", absence: 0, betSeries: [], nextBet: 0 };
@@ -344,8 +473,19 @@ function analyzeRouletteHistory(numbers, maxBet = 8) {
         buildBetResult(bestTierSignal, maxBet, numbersCopy) : 
         { signalType: "AUCUN", target: "-", absence: 0, betSeries: [], nextBet: 0 };
     
+    // Build results for no repetition signals
+    const noRepetitionColumnResult = noRepetitionColumnSignal ? 
+        buildBetResult(noRepetitionColumnSignal, maxBet, numbersCopy) : 
+        { signalType: "AUCUN", target: "-", betSeries: [], nextBet: 0 };
+        
+    const noRepetitionTierResult = noRepetitionTierSignal ? 
+        buildBetResult(noRepetitionTierSignal, maxBet, numbersCopy) : 
+        { signalType: "AUCUN", target: "-", betSeries: [], nextBet: 0 };
+    
     return {
         column: columnResult,
-        tier: tierResult
+        tier: tierResult,
+        noRepetitionColumn: noRepetitionColumnResult,
+        noRepetitionTier: noRepetitionTierResult
     };
 }

@@ -141,36 +141,46 @@ h3 {
     font-weight: 600;
 }
 
+.numbers-display {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
 .generated-numbers {
     display: flex;
-    gap: 12px;
+    flex-direction: column;
+    gap: 5px;
+    padding: 5px 0;
+}
+
+.number-row {
+    display: flex;
     flex-wrap: nowrap;
-    justify-content: center;
-    overflow-x: auto;
-    padding: 10px 0;
-    min-height: 70px;
+    gap: 2px;
+    margin-bottom: 5px;
 }
 
 .generated-number {
-    width: 60px;
-    height: 60px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: white;
-    border: 2px solid #6366f1;
-    border-radius: 50%;
+    display: inline-block;
+    padding: 3px 6px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
     font-weight: bold;
-    font-size: 1.3rem;
+    font-size: 1rem;
     color: #1e3a8a;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
+    min-width: 25px;
+    text-align: center;
 }
 
-.generated-number:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+.generated-number:not(:last-child):after {
+    content: '-';
+    margin-left: 5px;
+    color: #94a3b8;
+}
+
+.generated-number[data-position='0'] {
+    background-color: #e0f2fe;
+    border-color: #0ea5e9;
 }
 
 .new-number-section {
@@ -271,21 +281,106 @@ button {
     margin-top: 20px;
 }
 
-.results-section {
-    background-color: #f8fafc;
-    padding: 20px;
-    border-radius: 10px;
-    position: relative;
+/* Main Sections Layout */
+.main-section {
     flex: 1;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-.column-results {
-    border-left: 6px solid #3b82f6;
+.section-title {
+    text-align: center;
+    font-size: 1.2rem;
+    margin: 0;
+    padding: 10px;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-.tier-results {
-    border-left: 6px solid #8b5cf6;
+.left-section {
+    border-right: 1px solid #e5e7eb;
+    padding-right: 15px;
+}
+
+.right-section {
+    padding-left: 15px;
+}
+
+/* Arrow Styles */
+.arrow-down {
+    text-align: center;
+    font-size: 24px;
+    color: #666;
+    margin: 5px 0;
+}
+
+/* Tracking Dashboard Styles */
+.tracking-dashboard {
+    background-color: #f8f8f8;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #e5e7eb;
+}
+
+.tracking-grid {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.tracking-column {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Signals Row Styles */
+.signals-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.signal-card {
+    background-color: white;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    flex: 1;
+    min-width: 200px;
+}
+
+.card-header {
+    padding: 8px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #f8f8f8;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.card-body {
+    padding: 8px;
+}
+
+/* Buttons group styles */
+.buttons-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.clear-btn {
+    background-color: #ef4444;
+    color: white;
+}
+
+.clear-btn:hover {
+    background-color: #dc2626;
 }
 
 .results-section h2 {
@@ -334,42 +429,54 @@ button {
 }
 
 .result-item {
-    margin: 12px 0;
+    margin: 5px 0;
     display: flex;
     align-items: center;
-    padding: 8px 0;
+    padding: 5px 0;
     border-bottom: 1px solid #e5e7eb;
-}
-
-.result-label {
-    font-weight: bold;
-    min-width: 140px;
-    color: #4b5563;
 }
 
 .result-value {
     color: #111827;
-    font-weight: 500;
-    font-size: 1.1rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 3px 6px;
+    border-radius: 4px;
+    background-color: #f3f4f6;
+    width: 100%;
+    text-align: center;
 }
 
 .highlight {
-    background-color: #dbeafe;
-    padding: 15px;
-    border-radius: 8px;
-    font-size: 1.2rem;
-    margin-top: 20px;
-    border-left: 4px solid #2563eb;
-}
-
-.highlight .result-label {
-    color: #1e40af;
+    background-color: #f0f9ff;
+    padding: 8px;
+    border-radius: 6px;
+    margin-top: 5px;
+    border-left: 3px solid #0ea5e9;
 }
 
 .highlight .result-value {
-    color: #1e3a8a;
+    color: #0c4a6e;
     font-weight: bold;
-    font-size: 1.3rem;
+    font-size: 1rem;
+    background-color: #e0f2fe;
+}
+
+/* Specific signal value styles */
+.absence-column .result-value {
+    border-left: 3px solid #3b82f6;
+}
+
+.absence-tier .result-value {
+    border-left: 3px solid #8b5cf6;
+}
+
+.no-rep-column .result-value {
+    border-left: 3px solid #10b981;
+}
+
+.no-rep-tier .result-value {
+    border-left: 3px solid #f59e0b;
 }
 
 /* Error styles */
@@ -393,6 +500,15 @@ button {
 @media (max-width: 768px) {
     .container {
         padding: 15px;
+        max-width: 100%;
+    }
+    
+    h1 {
+        font-size: 1.6rem;
+    }
+    
+    h2 {
+        font-size: 1.3rem;
     }
     
     .input-row {
@@ -406,5 +522,68 @@ button {
     
     .main-btn {
         width: 100%;
+    }
+    
+    .tracking-grid {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .tracking-column {
+        min-width: 100%;
+    }
+    
+    .signals-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .signal-card {
+        margin-bottom: 15px;
+    }
+    
+    .result-label {
+        min-width: 90px;
+        font-size: 0.9rem;
+    }
+    
+    .result-value {
+        font-size: 0.95rem;
+    }
+    
+    .highlight {
+        padding: 12px;
+    }
+    
+    .highlight .result-value {
+        font-size: 1.1rem;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.4rem;
+    }
+    
+    .history-container {
+        padding: 10px;
+    }
+    
+    .generated-number {
+        width: 50px;
+        height: 50px;
+        font-size: 1.1rem;
+    }
+    
+    .tracking-label {
+        font-size: 0.85rem;
+    }
+    
+    .card-header h3 {
+        font-size: 1rem;
     }
 }
