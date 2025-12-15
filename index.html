@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aide à la Décision Roulette</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Aide à la Décision Roulette</h1>
+        
+        <div class="input-section">
+            <div class="section-header">
+                <h2>Historique des Numéros</h2>
+                <div class="controls-group">
+                    <div class="max-bet-selector">
+                        <select id="max-bet" title="Valeur maximale de mise">
+                            <option value="1">Max: 1</option>
+                            <option value="2">Max: 2</option>
+                            <option value="3">Max: 3</option>
+                            <option value="5">Max: 5</option>
+                            <option value="8" selected>Max: 8</option>
+                            <option value="12">Max: 12</option>
+                            <option value="18">Max: 18</option>
+                            <option value="27">Max: 27</option>
+                            <option value="41">Max: 41</option>
+                            <option value="60">Max: 60</option>
+                            <option value="100">Max: 100</option>
+                        </select>
+                    </div>
+                    <button id="random-history-btn" class="action-btn" title="Générer un historique aléatoire">
+                        <i class="fas fa-dice"></i> Générer Aléatoire
+                    </button>
+                </div>
+            </div>
+            
+            <div class="history-container">
+                <div class="history-labels">
+                    <span class="history-label">Plus récent</span>
+                    <span class="history-label">Plus ancien</span>
+                </div>
+                <div class="generated-numbers" id="generated-numbers"></div>
+            </div>
+            
+            <div class="new-number-section">
+                <div class="new-number-input">
+                    <input type="number" min="0" max="36" placeholder="Nouveau N°" id="new-number">
+                    <button id="add-number-btn" class="action-btn">
+                        <i class="fas fa-plus-circle"></i> Ajouter
+                    </button>
+                </div>
+            </div>
+            
+            
+            <div class="buttons">
+                <button id="calculate-btn" class="main-btn calculate-btn">
+                    <i class="fas fa-calculator"></i> Calculer Next Bet
+                </button>
+            </div>
+        </div>
+        
+        <div class="results-container">
+            <div class="results-section column-results">
+                <h2>Signaux Column</h2>
+                <div id="column-results">
+                    <div class="result-item">
+                        <span class="result-label">Signal:</span>
+                        <span id="column-signal" class="result-value">Pas encore</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Absence:</span>
+                        <span id="column-absence" class="result-value">-</span>
+                    </div>
+                    <div class="result-item highlight">
+                        <span class="result-label">Prochain bet:</span>
+                        <span id="column-bet" class="result-value">-</span>
+                    </div>
+                    
+                    <div class="absences-tracking">
+                        <h3>Tracking des absences</h3>
+                        <div class="tracking-item">
+                            <span class="tracking-label">Column 1 [1,4,7,10,13,16,19,22,25,28,31,34]:</span>
+                            <span id="column-1-absence" class="tracking-value">0</span>
+                        </div>
+                        <div class="tracking-item">
+                            <span class="tracking-label">Column 2 [2,5,8,11,14,17,20,23,26,29,32,35]:</span>
+                            <span id="column-2-absence" class="tracking-value">0</span>
+                        </div>
+                        <div class="tracking-item">
+                            <span class="tracking-label">Column 3 [3,6,9,12,15,18,21,24,27,30,33,36]:</span>
+                            <span id="column-3-absence" class="tracking-value">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-section tier-results">
+                <h2>Signaux Tier</h2>
+                <div id="tier-results">
+                    <div class="result-item">
+                        <span class="result-label">Signal:</span>
+                        <span id="tier-signal" class="result-value">Pas encore</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Absence:</span>
+                        <span id="tier-absence" class="result-value">-</span>
+                    </div>
+                    <div class="result-item highlight">
+                        <span class="result-label">Prochain bet:</span>
+                        <span id="tier-bet" class="result-value">-</span>
+                    </div>
+                    
+                    <div class="absences-tracking">
+                        <h3>Tracking des absences</h3>
+                        <div class="tracking-item">
+                            <span class="tracking-label">Tier 1 [1,2,3,4,5,6,7,8,9,10,11,12]:</span>
+                            <span id="tier-1-absence" class="tracking-value">0</span>
+                        </div>
+                        <div class="tracking-item">
+                            <span class="tracking-label">Tier 2 [13,14,15,16,17,18,19,20,21,22,23,24]:</span>
+                            <span id="tier-2-absence" class="tracking-value">0</span>
+                        </div>
+                        <div class="tracking-item">
+                            <span class="tracking-label">Tier 3 [25,26,27,28,29,30,31,32,33,34,35,36]:</span>
+                            <span id="tier-3-absence" class="tracking-value">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="roulette-logic.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
