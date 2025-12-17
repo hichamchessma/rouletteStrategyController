@@ -7,9 +7,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const maxBetSelect = document.getElementById('max-bet');
-    const calculateBtn = document.getElementById('calculate-btn');
     const newNumberInput = document.getElementById('new-number');
-    const addNumberBtn = document.getElementById('add-number-btn');
     const randomHistoryBtn = document.getElementById('random-history-btn');
     const generatedNumbersContainer = document.getElementById('generated-numbers');
     
@@ -394,7 +392,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Event Listeners
-    calculateBtn.addEventListener('click', calculateNextBet);
     
     // Add random number button
     document.getElementById('add-random-number-btn').addEventListener('click', () => {
@@ -423,17 +420,22 @@ document.addEventListener('DOMContentLoaded', () => {
         clearAll();
     });
     
-    // Add new number button
-    addNumberBtn.addEventListener('click', () => {
-        const newNum = parseInt(newNumberInput.value);
-        if (!isNaN(newNum)) {
-            addNewNumber(newNum);
-        } else {
-            newNumberInput.classList.add('error');
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'error-message';
-            errorMsg.textContent = 'Veuillez entrer un numéro valide';
-            document.querySelector('.new-number-input').after(errorMsg);
+    // Add new number with Enter key
+    newNumberInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const newNum = parseInt(newNumberInput.value);
+            if (!isNaN(newNum) && newNum >= 0 && newNum <= 36) {
+                addNewNumber(newNum);
+            } else {
+                newNumberInput.classList.add('error');
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'error-message';
+                errorMsg.textContent = 'Veuillez entrer un numéro valide (0-36)';
+                const existingError = document.querySelector('.error-message');
+                if (existingError) existingError.remove();
+                document.querySelector('.new-number-input').after(errorMsg);
+            }
         }
     });
     

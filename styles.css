@@ -17,17 +17,17 @@ body {
     background-color: white;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    padding: 25px;
+    padding: 15px;
     overflow: hidden;
 }
 
 h1 {
     text-align: center;
     color: #1e3a8a;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
     border-bottom: 2px solid #e0e7ff;
-    font-size: 2rem;
+    font-size: 1.8rem;
 }
 
 h2 {
@@ -314,13 +314,83 @@ button {
     margin: 5px 0;
 }
 
+/* Compact Controls Styles */
+.compact-controls {
+    background-color: #f8fafc;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.control-group h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    white-space: nowrap;
+}
+
+.input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.compact-input {
+    width: 80px;
+    height: 36px;
+    text-align: center;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 0 8px;
+}
+
+.compact-select {
+    height: 36px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background-color: white;
+    padding: 0 8px;
+    font-size: 0.9rem;
+}
+
+.compact-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.compact-buttons .action-btn {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.compact-history {
+    margin-top: 10px;
+    padding: 10px;
+}
+
 /* Tracking Dashboard Styles */
 .tracking-dashboard {
     background-color: #f8f8f8;
-    padding: 15px;
+    padding: 10px;
     border-radius: 5px;
     border: 1px solid #e5e7eb;
     overflow-x: auto;
+    margin-top: 10px;
 }
 
 .tracking-table {
@@ -331,16 +401,18 @@ button {
 
 .tracking-table th {
     background-color: #f1f5f9;
-    padding: 10px;
+    padding: 8px;
     text-align: center;
     border-bottom: 2px solid #e5e7eb;
     font-weight: 600;
+    font-size: 0.9rem;
 }
 
 .tracking-table td {
-    padding: 10px;
+    padding: 6px 8px;
     text-align: center;
     border-bottom: 1px solid #e5e7eb;
+    font-size: 0.9rem;
 }
 
 .position-cell {

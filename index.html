@@ -12,42 +12,42 @@
         <h1>Aide à la Décision Roulette</h1>
         
         <div class="input-section">
-            <div class="section-header">
-                <h2>Historique des Numéros</h2>
-                <div class="controls-group">
-                    <div class="max-bet-selector">
-                        <select id="max-bet" title="Valeur maximale de mise">
-                            <option value="1">Max: 1</option>
-                            <option value="2">Max: 2</option>
-                            <option value="3">Max: 3</option>
-                            <option value="5">Max: 5</option>
-                            <option value="8" selected>Max: 8</option>
-                            <option value="12">Max: 12</option>
-                            <option value="18">Max: 18</option>
-                            <option value="27">Max: 27</option>
-                            <option value="41">Max: 41</option>
-                            <option value="60">Max: 60</option>
-                            <option value="100">Max: 100</option>
-                        </select>
+            <div class="compact-controls">
+                <div class="controls-row">
+                    <div class="control-group">
+                        <h2>Historique</h2>
+                        <div class="input-group">
+                            <input type="number" min="0" max="36" placeholder="Nouveau N°" id="new-number" class="compact-input">
+                            <select id="max-bet" title="Valeur maximale de mise" class="compact-select">
+                                <option value="1">Max: 1</option>
+                                <option value="2">Max: 2</option>
+                                <option value="3">Max: 3</option>
+                                <option value="5">Max: 5</option>
+                                <option value="8" selected>Max: 8</option>
+                                <option value="12">Max: 12</option>
+                                <option value="18">Max: 18</option>
+                                <option value="27">Max: 27</option>
+                                <option value="41">Max: 41</option>
+                                <option value="60">Max: 60</option>
+                                <option value="100">Max: 100</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="buttons-group">
+                    <div class="buttons-group compact-buttons">
                         <button id="random-history-btn" class="action-btn" title="Générer un historique aléatoire">
                             <i class="fas fa-dice"></i> Générer Aléatoire
                         </button>
                         <button id="add-random-number-btn" class="action-btn" title="Ajouter un numéro aléatoire">
                             <i class="fas fa-plus-circle"></i> Numéro Aléatoire
                         </button>
-                        <button id="add-number-btn" class="action-btn" title="Ajouter un numéro">
-                            <i class="fas fa-plus-circle"></i> Ajouter
-                        </button>
                         <button id="clear-history-btn" class="action-btn clear-btn" title="Effacer l'historique">
-                            <i class="fas fa-trash"></i> Effacer Historique
+                            <i class="fas fa-trash"></i> Effacer
                         </button>
                     </div>
                 </div>
             </div>
             
-            <div class="history-container">
+            <div class="history-container compact-history">
                 <div class="history-labels">
                     <span class="history-label">Plus récent</span>
                     <span class="history-label">Plus ancien</span>
@@ -55,19 +55,6 @@
                 <div class="numbers-display">
                     <div class="generated-numbers" id="generated-numbers"></div>
                 </div>
-            </div>
-            
-            <div class="new-number-section">
-                <div class="new-number-input">
-                    <input type="number" min="0" max="36" placeholder="Nouveau N°" id="new-number">
-                </div>
-            </div>
-            
-            
-            <div class="buttons">
-                <button id="calculate-btn" class="main-btn calculate-btn">
-                    <i class="fas fa-calculator"></i> Calculer Next Bet
-                </button>
             </div>
         </div>
         
