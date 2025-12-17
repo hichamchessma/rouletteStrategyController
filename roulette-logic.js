@@ -11,13 +11,17 @@ const DEFAULT_BET_SERIES = [1, 1, 1, 2, 3, 5, 8, 12, 18, 27, 41, 60, 100];
 // Track the current bet index for each column and tier
 let betIndices = {
     columns: { 1: 0, 2: 0, 3: 0 },
-    tiers: { 1: 0, 2: 0, 3: 0 }
+    tiers: { 1: 0, 2: 0, 3: 0 },
+    noRepColumns: { 1: 0, 2: 0, 3: 0 },
+    noRepTiers: { 1: 0, 2: 0, 3: 0 }
 };
 
 // Track if a signal has been hit (won)
 let signalHits = {
     columns: { 1: false, 2: false, 3: false },
-    tiers: { 1: false, 2: false, 3: false }
+    tiers: { 1: false, 2: false, 3: false },
+    noRepColumns: { 1: false, 2: false, 3: false },
+    noRepTiers: { 1: false, 2: false, 3: false }
 };
 
 /**
@@ -357,6 +361,31 @@ function detectSignal(absences, minAbsence = 5) {
 }
 
 /**
+ * Calcule le pari pour la no-repetition en fonction du nombre de tours
+ * @param {number} count - Nombre de tours sans répétition
+ * @param {number} maxBet - Mise maximale autorisée
+ * @returns {number} Montant du pari
+ */
+function calculateNoRepetitionBet(count, maxBet = 8) {
+    // Série de paris: 1,1,1,2,3,5,8,12,18,27,41,60,100
+    // Si count < 5, on mise 1
+    // Si count >= 5, on suit la progression de la série
+    
+    if (count < 5) {
+        return 1; // Mise minimale pour moins de 5 tours
+    }
+    
+    // Calculer l'index dans la série (décalé de 5)
+    const seriesIndex = count - 5;
+    
+    // Limiter à la longueur de la série
+    const limitedIndex = Math.min(seriesIndex, DEFAULT_BET_SERIES.length - 1);
+    
+    // Limiter au montant maximal autorisé
+    return Math.min(DEFAULT_BET_SERIES[limitedIndex], maxBet);
+}
+
+/**
  * Builds the betting result based on the detected signal
  * @param {Object} signal - The detected signal
  * @param {number} maxBet - Maximum bet value in the series
@@ -380,6 +409,9 @@ function buildBetResult(signal, maxBet = 8, lastNumbers = []) {
     const type = signal.type.toLowerCase();
     const target = signal.target;
     
+    // Vérifier si c'est un signal de no-repetition
+    const isNoRepetition = type.includes('no_repetition');
+    
     // Check if the last number hit the target (if we have a last number)
     if (lastNumbers.length > 0) {
         const lastNum = lastNumbers[0]; // Newest number is at index 0
@@ -393,46 +425,84 @@ function buildBetResult(signal, maxBet = 8, lastNumbers = []) {
             // Hit! Reset the bet index
             betIndices.tiers[target] = 0;
             signalHits.tiers[target] = true;
+        } else if (type === 'no_repetition_column' && classification.column === target) {
+            // Hit! Reset the bet index for no-repetition column
+            betIndices.noRepColumns[target] = 0;
+            signalHits.noRepColumns[target] = true;
+        } else if (type === 'no_repetition_tier' && classification.tier === target) {
+            // Hit! Reset the bet index for no-repetition tier
+            betIndices.noRepTiers[target] = 0;
+            signalHits.noRepTiers[target] = true;
         } else {
             // Miss! Increment the bet index if we were already betting on this target
             if (type === 'column' && !signalHits.columns[target]) {
                 betIndices.columns[target] = Math.min(betIndices.columns[target] + 1, betSeries.length - 1);
             } else if (type === 'tier' && !signalHits.tiers[target]) {
                 betIndices.tiers[target] = Math.min(betIndices.tiers[target] + 1, betSeries.length - 1);
+            } else if (type === 'no_repetition_column' && !signalHits.noRepColumns[target]) {
+                betIndices.noRepColumns[target] = Math.min(betIndices.noRepColumns[target] + 1, betSeries.length - 1);
+            } else if (type === 'no_repetition_tier' && !signalHits.noRepTiers[target]) {
+                betIndices.noRepTiers[target] = Math.min(betIndices.noRepTiers[target] + 1, betSeries.length - 1);
             } else {
                 // New signal, start from the beginning
                 if (type === 'column') {
                     betIndices.columns[target] = 0;
                     signalHits.columns[target] = false;
-                } else {
+                } else if (type === 'tier') {
                     betIndices.tiers[target] = 0;
                     signalHits.tiers[target] = false;
+                } else if (type === 'no_repetition_column') {
+                    betIndices.noRepColumns[target] = 0;
+                    signalHits.noRepColumns[target] = false;
+                } else if (type === 'no_repetition_tier') {
+                    betIndices.noRepTiers[target] = 0;
+                    signalHits.noRepTiers[target] = false;
                 }
             }
         }
     }
     
-    // Get the current bet index for this target
-    const betIndex = type === 'column' ? betIndices.columns[target] : betIndices.tiers[target];
+    let nextBet = 0;
     
-    // If we've reached the max bet and still haven't hit, reset to the first bet
-    if (betSeries[betIndex] === maxBet) {
-        if (type === 'column') {
-            betIndices.columns[target] = 0;
-        } else {
-            betIndices.tiers[target] = 0;
+    if (isNoRepetition) {
+        // Pour les signaux de no-repetition, on utilise la valeur de no-repetition
+        // pour déterminer le montant du pari selon la nouvelle logique
+        const noRepValue = type === 'no_repetition_column' ? 
+            signal.noRepValue || 0 : 
+            signal.noRepValue || 0;
+        
+        nextBet = calculateNoRepetitionBet(noRepValue, maxBet);
+    } else {
+        // Pour les signaux d'absence, on utilise la série de paris standard
+        // Get the current bet index for this target
+        const betIndex = type === 'column' ? 
+            betIndices.columns[target] : 
+            betIndices.tiers[target];
+        
+        // If we've reached the max bet and still haven't hit, reset to the first bet
+        if (betSeries[betIndex] === maxBet) {
+            if (type === 'column') {
+                betIndices.columns[target] = 0;
+            } else {
+                betIndices.tiers[target] = 0;
+            }
         }
+        
+        // Get the updated bet index
+        const updatedBetIndex = type === 'column' ? 
+            betIndices.columns[target] : 
+            betIndices.tiers[target];
+        
+        nextBet = betSeries[updatedBetIndex];
     }
-    
-    // Get the updated bet index
-    const updatedBetIndex = type === 'column' ? betIndices.columns[target] : betIndices.tiers[target];
     
     return {
         signalType: signal.type,
         target: target,
         absence: signal.absence,
+        noRepValue: signal.noRepValue,
         betSeries: betSeries,
-        nextBet: betSeries[updatedBetIndex]
+        nextBet: nextBet
     };
 }
 
@@ -525,36 +595,31 @@ function analyzeRouletteHistory(numbers, maxBet = 8) {
     let noRepetitionColumnSignal = null;
     let noRepetitionTierSignal = null;
     
-    // If we have a no repetition pattern for columns, create a signal
-    if (noRepetition.columns) {
-        // Determine the most likely next column based on recent patterns
-        // For no repetition, we predict it will repeat the most recent column
-        const mostRecentNumber = numbersCopy[0];
-        const { column } = classifyNumber(mostRecentNumber);
+    // Créer des signaux de no-repetition basés sur les compteurs de no-repetition
+    if (noRepCounts && noRepCounts.columnCandidate) {
+        const currentColumn = noRepCounts.columnCandidate;
+        const noRepValue = noRepCounts.columns[currentColumn];
         
-        if (column !== null) {
-            noRepetitionColumnSignal = {
-                type: 'NO_REPETITION_COLUMN',
-                target: column,
-                description: 'Colonnes changeantes sans répétition'
-            };
-        }
+        // Créer un signal pour la colonne actuelle
+        noRepetitionColumnSignal = {
+            type: 'NO_REPETITION_COLUMN',
+            target: currentColumn,
+            noRepValue: noRepValue,
+            description: 'No repetition colonne'
+        };
     }
     
-    // If we have a no repetition pattern for tiers, create a signal
-    if (noRepetition.tiers) {
-        // Determine the most likely next tier based on recent patterns
-        // For no repetition, we predict it will repeat the most recent tier
-        const mostRecentNumber = numbersCopy[0];
-        const { tier } = classifyNumber(mostRecentNumber);
+    if (noRepCounts && noRepCounts.tierCandidate) {
+        const currentTier = noRepCounts.tierCandidate;
+        const noRepValue = noRepCounts.tiers[currentTier];
         
-        if (tier !== null) {
-            noRepetitionTierSignal = {
-                type: 'NO_REPETITION_TIER',
-                target: tier,
-                description: 'Tiers changeants sans répétition'
-            };
-        }
+        // Créer un signal pour le tier actuel
+        noRepetitionTierSignal = {
+            type: 'NO_REPETITION_TIER',
+            target: currentTier,
+            noRepValue: noRepValue,
+            description: 'No repetition tier'
+        };
     }
     
     console.log('Best Column Signal (Absence):', bestColumnSignal);
@@ -586,10 +651,19 @@ function analyzeRouletteHistory(numbers, maxBet = 8) {
     
     // Paris pour les colonnes
     for (let c = 1; c <= 3; c++) {
-        if (c === parseInt(columnResult.target)) {
-            columnBets[c] = `${columnResult.nextBet} sur C${c}`;
-        } else if (parseInt(noRepetitionColumnResult.target) === c) {
-            columnBets[c] = `${noRepetitionColumnResult.nextBet} sur C${c}`;
+        const hasAbsenceBet = c === parseInt(columnResult.target) && columnResult.nextBet > 0;
+        const hasNoRepBet = c === parseInt(noRepetitionColumnResult.target) && noRepetitionColumnResult.nextBet > 0;
+        
+        if (hasAbsenceBet && hasNoRepBet) {
+            // Combiner les deux paris
+            const absenceBet = columnResult.nextBet;
+            const noRepBet = noRepetitionColumnResult.nextBet;
+            const totalBet = absenceBet + noRepBet;
+            columnBets[c] = `${absenceBet}(a) + ${noRepBet}(n) = ${totalBet} sur C${c}`;
+        } else if (hasAbsenceBet) {
+            columnBets[c] = `${columnResult.nextBet}(a) sur C${c}`;
+        } else if (hasNoRepBet) {
+            columnBets[c] = `${noRepetitionColumnResult.nextBet}(n) sur C${c}`;
         } else {
             columnBets[c] = "-";
         }
@@ -597,10 +671,19 @@ function analyzeRouletteHistory(numbers, maxBet = 8) {
     
     // Paris pour les tiers
     for (let t = 1; t <= 3; t++) {
-        if (t === parseInt(tierResult.target)) {
-            tierBets[t] = `${tierResult.nextBet} sur T${t}`;
-        } else if (parseInt(noRepetitionTierResult.target) === t) {
-            tierBets[t] = `${noRepetitionTierResult.nextBet} sur T${t}`;
+        const hasAbsenceBet = t === parseInt(tierResult.target) && tierResult.nextBet > 0;
+        const hasNoRepBet = t === parseInt(noRepetitionTierResult.target) && noRepetitionTierResult.nextBet > 0;
+        
+        if (hasAbsenceBet && hasNoRepBet) {
+            // Combiner les deux paris
+            const absenceBet = tierResult.nextBet;
+            const noRepBet = noRepetitionTierResult.nextBet;
+            const totalBet = absenceBet + noRepBet;
+            tierBets[t] = `${absenceBet}(a) + ${noRepBet}(n) = ${totalBet} sur T${t}`;
+        } else if (hasAbsenceBet) {
+            tierBets[t] = `${tierResult.nextBet}(a) sur T${t}`;
+        } else if (hasNoRepBet) {
+            tierBets[t] = `${noRepetitionTierResult.nextBet}(n) sur T${t}`;
         } else {
             tierBets[t] = "-";
         }
